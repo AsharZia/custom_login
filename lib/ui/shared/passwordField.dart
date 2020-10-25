@@ -43,6 +43,7 @@ class _PasswordFieldState extends State<PasswordField> {
       validator: widget.validator,
       onFieldSubmitted: widget.onFieldSubmitted,
       decoration: InputDecoration(
+        filled: widget.enabled ? false : true,
         counterText: '',
         border: OutlineInputBorder(
           borderSide: BorderSide(
@@ -61,10 +62,13 @@ class _PasswordFieldState extends State<PasswordField> {
               _obscureText = !_obscureText;
             });
           },
-          child: Icon(
-            _obscureText ? Icons.visibility : Icons.visibility_off,
-            semanticLabel: _obscureText ? 'Show Passowrd' : 'Hide Password',
-          ),
+          child: widget.enabled
+              ? Icon(
+                  _obscureText ? Icons.visibility : Icons.visibility_off,
+                  semanticLabel:
+                      _obscureText ? 'Show Passowrd' : 'Hide Password',
+                )
+              : SizedBox(),
         ),
       ),
     );

@@ -1,4 +1,5 @@
-import 'package:custom_login/passwordField.dart';
+import 'package:custom_login/ui/shared/passwordField.dart';
+import 'package:custom_login/ui/views/profile.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,15 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Text(
-                    'Welcome',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5
-                        .copyWith(color: Color(0xFF4B4C4B)),
-                  ),
-                ),
+                buildTitleWidget(context),
                 SizedBox(height: 32.0),
                 Text('Email'),
                 SizedBox(height: 4.0),
@@ -40,18 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 16.0),
                 Text('Password'),
                 SizedBox(height: 4.0),
-                PasswordField(
-                  controller: passwordTextField,
-                  enabled: isLoading ? false : true,
-                  hintText: 'enter password',
-                  validator: (password) {
-                    if (password.isEmpty) {
-                      return 'Passcode is required';
-                    } else {
-                      return null;
-                    }
-                  },
-                ),
+                buildPasswordField(),
                 SizedBox(height: 16.0),
                 buildLoginButton(context),
                 SizedBox(height: 16.0),
@@ -63,6 +45,18 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Center buildTitleWidget(BuildContext context) {
+    return Center(
+      child: Text(
+        'Welcome',
+        style: Theme.of(context)
+            .textTheme
+            .headline5
+            .copyWith(color: Color(0xFF4B4C4B)),
       ),
     );
   }
@@ -91,6 +85,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  PasswordField buildPasswordField() {
+    return PasswordField(
+      controller: passwordTextField,
+      enabled: isLoading ? false : true,
+      hintText: 'enter password',
+      validator: (password) {
+        if (password.isEmpty) {
+          return 'Password is required';
+        } else {
+          return null;
+        }
+      },
+    );
+  }
+
   Row buildLoginButton(BuildContext context) {
     return Row(
       children: [
@@ -101,9 +110,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ? null
                 : () {
                     if (isValidateForm()) {
-                      return;
+                      doLogin();
                     } else {
-                      // doLogin();
+                      return;
                     }
                   },
             color: Theme.of(context).primaryColor,
@@ -129,6 +138,17 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  void doLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ProfileScreen(
+          password: passwordTextField.text,
+        ),
+      ),
     );
   }
 
