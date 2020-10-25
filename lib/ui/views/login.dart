@@ -1,6 +1,9 @@
+import 'package:custom_login/bloc/models/login.dart';
+import 'package:custom_login/bloc/viewModels/auth_model.dart';
 import 'package:custom_login/ui/shared/passwordField.dart';
 import 'package:custom_login/ui/views/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,40 +15,46 @@ class _LoginScreenState extends State<LoginScreen> {
   final formKey = GlobalKey<FormState>();
   final emailTextField = TextEditingController();
   final passwordTextField = TextEditingController();
+  AuthModel authBloc;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildTitleWidget(context),
-                SizedBox(height: 32.0),
-                Text('Email'),
-                SizedBox(height: 4.0),
-                buildEmailTextField(),
-                SizedBox(height: 16.0),
-                Text('Password'),
-                SizedBox(height: 4.0),
-                buildPasswordField(),
-                SizedBox(height: 16.0),
-                buildLoginButton(context),
-                SizedBox(height: 16.0),
-                buildForgotPasswordButton(context),
-                buildORWidget(),
-                SizedBox(height: 8.0),
-                buildExploreAppButton(context)
-              ],
+    return Consumer<AuthModel>(
+      builder: (context, bloc, child) {
+        this.authBloc = bloc;
+        return Scaffold(
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTitleWidget(context),
+                    SizedBox(height: 32.0),
+                    Text('Email'),
+                    SizedBox(height: 4.0),
+                    buildEmailTextField(),
+                    SizedBox(height: 16.0),
+                    Text('Password'),
+                    SizedBox(height: 4.0),
+                    buildPasswordField(),
+                    SizedBox(height: 16.0),
+                    buildLoginButton(context),
+                    SizedBox(height: 16.0),
+                    buildForgotPasswordButton(context),
+                    buildORWidget(),
+                    SizedBox(height: 8.0),
+                    buildExploreAppButton(context)
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -141,7 +150,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void doLogin() {
+  void doLogin() async {
+    var req = LoginRequest(
+      email: emailTextField.text,
+      password: passwordTextField.text,
+    );
+
+    await authBloc.doLogin(req);
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
