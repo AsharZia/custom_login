@@ -1,24 +1,16 @@
-import 'package:custom_login/ui/shared/passwordField.dart';
+import 'package:custom_login/auth_model.dart';
+import 'package:custom_login/ui/widgets/passwordField.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatefulWidget {
-  final String password;
-  ProfileScreen({@required this.password});
-  @override
-  _ProfileScreenState createState() => _ProfileScreenState();
-}
+class ProfileScreen extends StatelessWidget {
+  final User user;
+  ProfileScreen({Key key, this.user}) : super(key: key);
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  bool isLoading = false;
   final formKey = GlobalKey<FormState>();
   final emailTextField = TextEditingController();
   final passwordTextField = TextEditingController();
-
-  @override
-  void initState() {
-    passwordTextField.text = widget.password;
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('dp.jpg'),
             SizedBox(height: 8.0),
             Text(
-              'Uploaded Feb 19, 2020',
+              user.displayName,
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -94,7 +86,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   TextFormField buildEmailTextField() {
     return TextFormField(
       controller: emailTextField,
-      enabled: isLoading ? false : true,
       keyboardType: TextInputType.emailAddress,
       validator: (email) {
         if (email.isEmpty) {
@@ -128,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Text(
         'Change',
         style: Theme.of(context).textTheme.button.copyWith(
-              color: isLoading ? Colors.grey : Theme.of(context).primaryColor,
+              color: Theme.of(context).primaryColor,
             ),
       ),
     );
@@ -140,43 +131,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         vertical: 12.0,
         horizontal: 36.0,
       ),
-      onPressed: isLoading
-          ? null
-          : () {
-              if (isValidateForm()) {
-                logout();
-              } else {
-                return;
-              }
-            },
+      onPressed: () => Provider.of<LoginState>(context).signOut(),
       color: Theme.of(context).primaryColor,
-      child: isLoading
-          ? SizedBox(
-              height: 24.0,
-              width: 24.0,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.0,
-                valueColor: AlwaysStoppedAnimation(Colors.white),
-              ),
-            )
-          : Text(
-              'Log Out',
-              style: Theme.of(context)
-                  .textTheme
-                  .button
-                  .copyWith(color: Colors.white),
-            ),
+      child: Text(
+        'Log Out',
+        style: Theme.of(context).textTheme.button.copyWith(color: Colors.white),
+      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
-    );
-  }
-
-  void logout() {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/',
-      (Route<dynamic> route) => false,
     );
   }
 

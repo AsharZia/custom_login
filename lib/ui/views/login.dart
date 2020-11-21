@@ -1,7 +1,5 @@
-import 'package:custom_login/bloc/models/login.dart';
-import 'package:custom_login/bloc/viewModels/auth_model.dart';
-import 'package:custom_login/ui/shared/passwordField.dart';
-import 'package:custom_login/ui/views/profile.dart';
+import 'package:custom_login/auth_model.dart';
+import 'package:custom_login/ui/widgets/passwordField.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,50 +9,46 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool isLoading = false;
   final formKey = GlobalKey<FormState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   final emailTextField = TextEditingController();
   final passwordTextField = TextEditingController();
-  AuthModel authBloc;
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthModel>(
-      builder: (context, bloc, child) {
-        this.authBloc = bloc;
-        return Scaffold(
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildTitleWidget(context),
-                    SizedBox(height: 32.0),
-                    Text('Email'),
-                    SizedBox(height: 4.0),
-                    buildEmailTextField(),
-                    SizedBox(height: 16.0),
-                    Text('Password'),
-                    SizedBox(height: 4.0),
-                    buildPasswordField(),
-                    SizedBox(height: 16.0),
-                    buildLoginButton(context),
-                    SizedBox(height: 16.0),
-                    buildForgotPasswordButton(context),
-                    buildORWidget(),
-                    SizedBox(height: 8.0),
-                    buildExploreAppButton(context)
-                  ],
-                ),
-              ),
+    final user = Provider.of<LoginState>(context);
+    return Scaffold(
+      key: scaffoldKey,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildTitleWidget(context),
+                SizedBox(height: 32.0),
+                Text('Email'),
+                SizedBox(height: 4.0),
+                buildEmailTextField(user),
+                SizedBox(height: 16.0),
+                Text('Password'),
+                SizedBox(height: 4.0),
+                buildPasswordField(user),
+                SizedBox(height: 16.0),
+                buildLoginButton(context, user),
+                SizedBox(height: 16.0),
+                buildForgotPasswordButton(context, user),
+                buildORWidget(),
+                SizedBox(height: 8.0),
+                buildExploreAppButton(context, user)
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -70,10 +64,10 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  TextFormField buildEmailTextField() {
+  TextFormField buildEmailTextField(LoginState user) {
     return TextFormField(
       controller: emailTextField,
-      enabled: isLoading ? false : true,
+      enabled: user.status == LoginStatus.Authenticating ? false : true,
       keyboardType: TextInputType.emailAddress,
       validator: (email) {
         if (email.isEmpty) {
@@ -94,10 +88,10 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  PasswordField buildPasswordField() {
+  PasswordField buildPasswordField(LoginState user) {
     return PasswordField(
       controller: passwordTextField,
-      enabled: isLoading ? false : true,
+      enabled: user.status == LoginStatus.Authenticating ? false : true,
       hintText: 'enter password',
       validator: (password) {
         if (password.isEmpty) {
@@ -109,23 +103,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Row buildLoginButton(BuildContext context) {
+  Row buildLoginButton(BuildContext context, LoginState user) {
     return Row(
       children: [
         Expanded(
           child: RaisedButton(
             padding: const EdgeInsets.symmetric(vertical: 12.0),
-            onPressed: isLoading
+            onPressed: user.status == LoginStatus.Authenticating
                 ? null
                 : () {
                     if (isValidateForm()) {
-                      doLogin();
-                    } else {
-                      return;
+                      doLogin(user);
                     }
                   },
             color: Theme.of(context).primaryColor,
-            child: isLoading
+            child: user.status == LoginStatus.Authenticating
                 ? SizedBox(
                     height: 24.0,
                     width: 24.0,
@@ -150,32 +142,23 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void doLogin() async {
-    var req = LoginRequest(
-      email: emailTextField.text,
-      password: passwordTextField.text,
-    );
-
-    await authBloc.doLogin(req);
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => ProfileScreen(
-          password: passwordTextField.text,
-        ),
-      ),
-    );
+  void doLogin(LoginState user) async {
+    if (!await user.signIn(emailTextField.text, passwordTextField.text))
+      scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("Something is wrong"),
+      ));
   }
 
-  Center buildForgotPasswordButton(BuildContext context) {
+  Center buildForgotPasswordButton(BuildContext context, LoginState user) {
     return Center(
       child: FlatButton(
-        onPressed: isLoading ? null : () {},
+        onPressed: user.status == LoginStatus.Authenticating ? null : () {},
         child: Text(
           'Forgot Password',
           style: Theme.of(context).textTheme.button.copyWith(
-                color: isLoading ? Colors.grey : Theme.of(context).primaryColor,
+                color: user.status == LoginStatus.Authenticating
+                    ? Colors.grey
+                    : Theme.of(context).primaryColor,
               ),
         ),
       ),
@@ -212,13 +195,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Row buildExploreAppButton(BuildContext context) {
+  Row buildExploreAppButton(BuildContext context, LoginState user) {
     return Row(
       children: [
         Expanded(
           child: OutlineButton(
             padding: const EdgeInsets.symmetric(vertical: 12.0),
-            onPressed: isLoading
+            onPressed: user.status == LoginStatus.Authenticating
                 ? null
                 : () {
                     if (isValidateForm()) {
@@ -228,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                   },
             color: Theme.of(context).primaryColor,
-            child: isLoading
+            child: user.status == LoginStatus.Authenticating
                 ? SizedBox(
                     height: 24.0,
                     width: 24.0,
