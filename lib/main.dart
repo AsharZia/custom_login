@@ -1,13 +1,10 @@
 import 'package:custom_login/ui/views/profile.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'auth_model.dart';
+import 'auth_service.dart';
 import 'ui/views/login.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -28,15 +25,17 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => LoginState.instance(),
+      create: (_) => LoginState(),
       child: Consumer(
-        builder: (context, LoginState user, _) {
-          switch (user.status) {
+        builder: (context, LoginState state, _) {
+          switch (state.status) {
             case LoginStatus.Unauthenticated:
             case LoginStatus.Authenticating:
               return LoginScreen();
             case LoginStatus.Authenticated:
-              return ProfileScreen(user: user.user);
+              return ProfileScreen();
+            default:
+              return LoginScreen();
           }
         },
       ),

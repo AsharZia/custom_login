@@ -1,4 +1,4 @@
-import 'package:custom_login/auth_model.dart';
+import 'package:custom_login/auth_service.dart';
 import 'package:custom_login/ui/widgets/passwordField.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,15 +10,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final formKey = GlobalKey<FormState>();
-  final scaffoldKey = GlobalKey<ScaffoldState>();
   final emailTextField = TextEditingController();
   final passwordTextField = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<LoginState>(context);
+    final state = Provider.of<LoginState>(context);
     return Scaffold(
-      key: scaffoldKey,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -32,18 +30,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 32.0),
                 Text('Email'),
                 SizedBox(height: 4.0),
-                buildEmailTextField(user),
+                buildEmailTextField(state),
                 SizedBox(height: 16.0),
                 Text('Password'),
                 SizedBox(height: 4.0),
-                buildPasswordField(user),
+                buildPasswordField(state),
                 SizedBox(height: 16.0),
-                buildLoginButton(context, user),
+                buildLoginButton(context, state),
                 SizedBox(height: 16.0),
-                buildForgotPasswordButton(context, user),
+                buildForgotPasswordButton(context, state),
                 buildORWidget(),
                 SizedBox(height: 8.0),
-                buildExploreAppButton(context, user)
+                buildExploreAppButton(context)
               ],
             ),
           ),
@@ -64,10 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  TextFormField buildEmailTextField(LoginState user) {
+  TextFormField buildEmailTextField(LoginState state) {
     return TextFormField(
       controller: emailTextField,
-      enabled: user.status == LoginStatus.Authenticating ? false : true,
+      enabled: state.status == LoginStatus.Authenticating ? false : true,
       keyboardType: TextInputType.emailAddress,
       validator: (email) {
         if (email.isEmpty) {
@@ -88,10 +86,10 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  PasswordField buildPasswordField(LoginState user) {
+  PasswordField buildPasswordField(LoginState state) {
     return PasswordField(
       controller: passwordTextField,
-      enabled: user.status == LoginStatus.Authenticating ? false : true,
+      enabled: state.status == LoginStatus.Authenticating ? false : true,
       hintText: 'enter password',
       validator: (password) {
         if (password.isEmpty) {
@@ -103,21 +101,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Row buildLoginButton(BuildContext context, LoginState user) {
+  Row buildLoginButton(BuildContext context, LoginState state) {
     return Row(
       children: [
         Expanded(
           child: RaisedButton(
             padding: const EdgeInsets.symmetric(vertical: 12.0),
-            onPressed: user.status == LoginStatus.Authenticating
+            onPressed: state.status == LoginStatus.Authenticating
                 ? null
                 : () {
                     if (isValidateForm()) {
-                      doLogin(user);
+                      doLogin(state);
                     }
                   },
             color: Theme.of(context).primaryColor,
-            child: user.status == LoginStatus.Authenticating
+            child: state.status == LoginStatus.Authenticating
                 ? SizedBox(
                     height: 24.0,
                     width: 24.0,
@@ -142,21 +140,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void doLogin(LoginState user) async {
-    if (!await user.signIn(emailTextField.text, passwordTextField.text))
-      scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Something is wrong"),
-      ));
+  void doLogin(LoginState state) async {
+    await state.signIn(emailTextField.text, passwordTextField.text);
   }
 
-  Center buildForgotPasswordButton(BuildContext context, LoginState user) {
+  Center buildForgotPasswordButton(BuildContext context, LoginState state) {
     return Center(
       child: FlatButton(
-        onPressed: user.status == LoginStatus.Authenticating ? null : () {},
+        onPressed: state.status == LoginStatus.Authenticating ? null : () {},
         child: Text(
           'Forgot Password',
           style: Theme.of(context).textTheme.button.copyWith(
-                color: user.status == LoginStatus.Authenticating
+                color: state.status == LoginStatus.Authenticating
                     ? Colors.grey
                     : Theme.of(context).primaryColor,
               ),
@@ -195,38 +190,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Row buildExploreAppButton(BuildContext context, LoginState user) {
+  Row buildExploreAppButton(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: OutlineButton(
             padding: const EdgeInsets.symmetric(vertical: 12.0),
-            onPressed: user.status == LoginStatus.Authenticating
-                ? null
-                : () {
-                    if (isValidateForm()) {
-                      return;
-                    } else {
-                      // doLogin();
-                    }
-                  },
+            onPressed: () {},
             color: Theme.of(context).primaryColor,
-            child: user.status == LoginStatus.Authenticating
-                ? SizedBox(
-                    height: 24.0,
-                    width: 24.0,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.0,
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    ),
-                  )
-                : Text(
-                    'Explore The App',
-                    style: Theme.of(context)
-                        .textTheme
-                        .button
-                        .copyWith(color: Colors.black54),
-                  ),
+            child: Text(
+              'Explore The App',
+              style: Theme.of(context)
+                  .textTheme
+                  .button
+                  .copyWith(color: Colors.black54),
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),

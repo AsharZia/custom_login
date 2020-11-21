@@ -1,19 +1,18 @@
-import 'package:custom_login/auth_model.dart';
+import 'package:custom_login/auth_service.dart';
 import 'package:custom_login/ui/widgets/passwordField.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final User user;
-  ProfileScreen({Key key, this.user}) : super(key: key);
-
   final formKey = GlobalKey<FormState>();
   final emailTextField = TextEditingController();
   final passwordTextField = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final loginState = Provider.of<LoginState>(context, listen: false);
+    emailTextField.text = loginState.email;
+    passwordTextField.text = loginState.password;
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -34,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: buildFAB(context),
+      floatingActionButton: buildFAB(context, loginState),
     );
   }
 
@@ -74,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
             Text('dp.jpg'),
             SizedBox(height: 8.0),
             Text(
-              user.displayName,
+              'user.displayName',
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -125,13 +124,13 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  RaisedButton buildFAB(BuildContext context) {
+  RaisedButton buildFAB(BuildContext context, LoginState loginState) {
     return RaisedButton(
       padding: const EdgeInsets.symmetric(
         vertical: 12.0,
         horizontal: 36.0,
       ),
-      onPressed: () => Provider.of<LoginState>(context).signOut(),
+      onPressed: () => loginState.signOut(),
       color: Theme.of(context).primaryColor,
       child: Text(
         'Log Out',
