@@ -1,3 +1,4 @@
+import 'package:custom_login/profile_service.dart';
 import 'package:custom_login/ui/views/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -29,11 +30,13 @@ class HomePage extends StatelessWidget {
       child: Consumer(
         builder: (context, LoginState state, _) {
           switch (state.status) {
-            case LoginStatus.Unauthenticated:
-            case LoginStatus.Authenticating:
+            case LoginStatus.unAuthenticated:
               return LoginScreen();
-            case LoginStatus.Authenticated:
-              return ProfileScreen();
+            case LoginStatus.authenticated:
+              return ChangeNotifierProvider(
+                create: (_) => ProfileState(),
+                child: ProfileScreen(),
+              );
             default:
               return LoginScreen();
           }

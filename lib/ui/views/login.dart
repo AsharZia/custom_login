@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextFormField buildEmailTextField(LoginState state) {
     return TextFormField(
       controller: emailTextField,
-      enabled: state.status == LoginStatus.Authenticating ? false : true,
+      enabled: state.status == LoginStatus.authenticating ? false : true,
       keyboardType: TextInputType.emailAddress,
       validator: (email) {
         if (email.isEmpty) {
@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
   PasswordField buildPasswordField(LoginState state) {
     return PasswordField(
       controller: passwordTextField,
-      enabled: state.status == LoginStatus.Authenticating ? false : true,
+      enabled: state.status == LoginStatus.authenticating ? false : true,
       hintText: 'enter password',
       validator: (password) {
         if (password.isEmpty) {
@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Expanded(
           child: RaisedButton(
             padding: const EdgeInsets.symmetric(vertical: 12.0),
-            onPressed: state.status == LoginStatus.Authenticating
+            onPressed: state.status == LoginStatus.authenticating
                 ? null
                 : () {
                     if (isValidateForm()) {
@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                   },
             color: Theme.of(context).primaryColor,
-            child: state.status == LoginStatus.Authenticating
+            child: state.status == LoginStatus.authenticating
                 ? SizedBox(
                     height: 24.0,
                     width: 24.0,
@@ -147,11 +147,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Center buildForgotPasswordButton(BuildContext context, LoginState state) {
     return Center(
       child: FlatButton(
-        onPressed: state.status == LoginStatus.Authenticating ? null : () {},
+        onPressed: state.status == LoginStatus.authenticating ? null : () {},
         child: Text(
           'Forgot Password',
           style: Theme.of(context).textTheme.button.copyWith(
-                color: state.status == LoginStatus.Authenticating
+                color: state.status == LoginStatus.authenticating
                     ? Colors.grey
                     : Theme.of(context).primaryColor,
               ),
