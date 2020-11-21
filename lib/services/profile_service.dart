@@ -1,6 +1,8 @@
+import 'package:custom_login/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+// Assuming 3 states of profile
 enum Profile { fetched, fetching, notFetched }
 
 class ProfileState with ChangeNotifier {
@@ -14,6 +16,7 @@ class ProfileState with ChangeNotifier {
 
   Future getUser(String userID) async {
     try {
+      // Get user information by changing profile state from not-fetched to fetching
       _status = Profile.fetching;
       notifyListeners();
 
@@ -23,29 +26,12 @@ class ProfileState with ChangeNotifier {
         var user = User(name: 'John David', designation: 'Flutter Developer');
         _name = user.name;
         _designation = user.designation;
+        // After successful response, profile state changes from fetching to fetched
         _status = Profile.fetched;
         notifyListeners();
       });
     } catch (e) {
       print(e);
     }
-  }
-}
-
-class User {
-  String name;
-  String designation;
-  User({this.name, this.designation});
-
-  User.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    designation = json['designation'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['designation'] = this.designation;
-    return data;
   }
 }

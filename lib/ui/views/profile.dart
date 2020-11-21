@@ -11,12 +11,13 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize both login and profile states
     final loginState = Provider.of<LoginState>(context, listen: false);
     final profileState = Provider.of<ProfileState>(context, listen: false);
-    emailTextField.text = loginState.email;
+    emailTextField.text = loginState.email; // get email from login state
     passwordTextField.text = loginState.password;
     if (profileState.status == Profile.notFetched)
-      profileState.getUser(loginState.id);
+      profileState.getUser(loginState.id); // call method from profile state
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -71,6 +72,7 @@ class ProfileScreen extends StatelessWidget {
           backgroundImage: AssetImage('assets/dp.jpg'),
         ),
         SizedBox(width: 16.0),
+        // Showing widget according to current status of profile state
         profileState.status == Profile.fetching
             ? CircularProgressIndicator()
             : profileState.status == Profile.notFetched
@@ -142,6 +144,7 @@ class ProfileScreen extends StatelessWidget {
         vertical: 12.0,
         horizontal: 36.0,
       ),
+      // Logout with login state
       onPressed: () => loginState.signOut(),
       color: Theme.of(context).primaryColor,
       child: Text(

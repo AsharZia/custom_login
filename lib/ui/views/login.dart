@@ -15,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize login state
     final state = Provider.of<LoginState>(context);
     return Scaffold(
       body: SafeArea(
@@ -107,6 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Expanded(
           child: RaisedButton(
             padding: const EdgeInsets.symmetric(vertical: 12.0),
+            // When user presses button, login state is changing from un-authenticated to authenticating
             onPressed: state.status == LoginStatus.authenticating
                 ? null
                 : () {
@@ -141,6 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void doLogin(LoginState state) async {
+    // Call signIn method with login state
     await state.signIn(emailTextField.text, passwordTextField.text);
   }
 

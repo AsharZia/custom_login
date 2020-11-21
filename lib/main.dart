@@ -25,8 +25,10 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Create providers for state management
     return ChangeNotifierProvider(
       create: (_) => LoginState(),
+      // Navigation performed according to the state
       child: Consumer(
         builder: (context, LoginState state, _) {
           switch (state.status) {
