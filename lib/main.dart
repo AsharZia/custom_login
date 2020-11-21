@@ -1,15 +1,14 @@
+import 'package:custom_login/ui/views/profile.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'bloc/viewModels/auth_model.dart';
+import 'auth_model.dart';
 import 'ui/views/login.dart';
 
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => AuthModel(),
-      child: MyApp(),
-    ),
-  );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -20,10 +19,27 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => LoginScreen(),
-      },
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => LoginState.instance(),
+      child: Consumer(
+        builder: (context, LoginState user, _) {
+          switch (user.status) {
+            case LoginStatus.Unauthenticated:
+            case LoginStatus.Authenticating:
+              return LoginScreen();
+            case LoginStatus.Authenticated:
+              return ProfileScreen(user: user.user);
+          }
+        },
+      ),
     );
   }
 }
