@@ -1,8 +1,8 @@
-import 'package:custom_login/profile_service.dart';
+import 'package:custom_login/services/profile_service.dart';
 import 'package:custom_login/ui/views/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'auth_service.dart';
+import 'services/auth_service.dart';
 import 'ui/views/login.dart';
 
 void main() async {

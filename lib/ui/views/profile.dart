@@ -1,5 +1,5 @@
-import 'package:custom_login/auth_service.dart';
-import 'package:custom_login/profile_service.dart';
+import 'package:custom_login/services/auth_service.dart';
+import 'package:custom_login/services/profile_service.dart';
 import 'package:custom_login/ui/widgets/passwordField.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
